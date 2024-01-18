@@ -26,7 +26,7 @@ public class SwerveModule {
     //private TalonFX mAngleMotor;
     private CANSparkMax mAngleMotor;
     private SparkPIDController mAngleController;
-    private RelativeEncoder mAngleEncoder;
+    private RelativeEncoder mNeoAngleEncoder;
     private TalonFX mDriveMotor;
     private CANcoder angleEncoder;
 
@@ -51,8 +51,7 @@ public class SwerveModule {
         mAngleMotor = new CANSparkMax(moduleConstants.angleMotorID, MotorType.kBrushless);
         mAngleMotor.setInverted(Constants.Swerve.angleMotorInvert);
         mAngleMotor.setSmartCurrentLimit(Constants.Swerve.angleCurrentThreshold);
-
-        resetToAbsolute();
+        mAngleMotor.burnFlash();
 
         /* Angle Motor PID Config */
         mAngleController = mAngleMotor.getPIDController();
@@ -64,7 +63,9 @@ public class SwerveModule {
         mAngleController.setPositionPIDWrappingMaxInput(2 * Math.PI);
 
         /* Angle Motor Encoder Config */
-        mAngleEncoder = mAngleMotor.getEncoder(Type.kHallSensor, 42);
+        mNeoAngleEncoder = mAngleMotor.getEncoder(Type.kHallSensor, 42);
+
+        resetToAbsolute();
 
         /* Drive Motor Config */
         mDriveMotor = new TalonFX(moduleConstants.driveMotorID);
@@ -96,20 +97,20 @@ public class SwerveModule {
 
     public void resetToAbsolute(){
         double absolutePosition = getCANcoder().getRotations() - angleOffset.getRotations();
-        mAngleEncoder.setPosition(RevConfigs.CANCoderAngleToNeoEncoder(absolutePosition));
+        mNeoAngleEncoder.setPosition(RevConfigs.CANCoderAngleToNeoEncoder(absolutePosition));
     }
 
     public SwerveModuleState getState(){
         return new SwerveModuleState(
             Conversions.RPSToMPS(mDriveMotor.getVelocity().getValue(), Constants.Swerve.wheelCircumference), 
-            Rotation2d.fromRotations(RevConfigs.NeoEncoderAngleToCANCoder(angleEncoder.getPosition().getValue()))
+            Rotation2d.fromRotations(RevConfigs.NeoEncoderAngleToCANCoder(mNeoAngleEncoder.getPosition()))
         );
     }
 
     public SwerveModulePosition getPosition(){
         return new SwerveModulePosition(
             Conversions.rotationsToMeters(mDriveMotor.getPosition().getValue(), Constants.Swerve.wheelCircumference), 
-            Rotation2d.fromRotations(RevConfigs.NeoEncoderAngleToCANCoder(angleEncoder.getPosition().getValue()))
+            Rotation2d.fromRotations(RevConfigs.NeoEncoderAngleToCANCoder(mNeoAngleEncoder.getPosition()))
         );
     }
 }
