@@ -14,7 +14,7 @@ public final class CTREConfigs {
 
         /** Swerve Angle Motor Configurations */
         /* Motor Inverts and Neutral Mode */
-        swerveAngleFXConfig.MotorOutput.Inverted = Constants.Swerve.angleMotorInvert;
+        //swerveAngleFXConfig.MotorOutput.Inverted = Constants.Swerve.angleMotorInvert;
         swerveAngleFXConfig.MotorOutput.NeutralMode = Constants.Swerve.angleNeutralMode;
 
         /* Gear Ratio and Wrapping Config */
